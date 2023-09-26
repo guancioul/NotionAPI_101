@@ -8,9 +8,6 @@ import (
 	"github.com/swaggo/swag/example/celler/controller"
 	_ "github.com/swaggo/swag/example/celler/docs"
 	"github.com/swaggo/swag/example/celler/httputil"
-
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 //	@title			Swagger Example API
@@ -92,7 +89,11 @@ func main() {
 			examples.GET("attribute", c.AttributeExample)
 		}
 	}
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.GET("/swagger/*resource", func(c *gin.Context) {
+		resource := c.Param("resource")
+		http.ServeFile(c.Writer, c.Request, "./docs/swagger"+resource)
+	})
 	r.Run(":8080")
 }
 
