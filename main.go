@@ -60,6 +60,14 @@ func main() {
 
 	v1 := r.Group("/api/v1")
 	{
+		notion := v1.Group("/notion")
+		{
+			notion.POST("/createDatabase", c.CreateNotionDatabase)
+		}
+		googleCalendar := v1.Group("/googleCalendar")
+		{
+			googleCalendar.GET("/getEventList", c.GetGoogleCalendarEventList)
+		}
 		accounts := v1.Group("/accounts")
 		{
 			accounts.GET(":id", c.ShowAccount)
