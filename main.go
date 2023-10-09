@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/swaggo/swag/example/celler/controller"
-	_ "github.com/swaggo/swag/example/celler/docs"
-	"github.com/swaggo/swag/example/celler/httputil"
+	"github.com/guancioul/NotionGoogleCalendarIntegration/controller"
+	_ "github.com/guancioul/NotionGoogleCalendarIntegration/docs"
+	"github.com/guancioul/NotionGoogleCalendarIntegration/httputil"
 )
 
 //	@title			Swagger Example API
@@ -62,7 +62,8 @@ func main() {
 	{
 		notion := v1.Group("/notion")
 		{
-			notion.POST("/createDatabase", c.CreateNotionDatabase)
+			notion.POST("/createDatabase/:pageId", c.CreateNotionDatabase)
+			notion.POST("/queryDatabase/:databaseId", c.QueryNotionDatabase)
 		}
 		googleCalendar := v1.Group("/googleCalendar")
 		{

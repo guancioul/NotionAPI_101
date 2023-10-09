@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	"github.com/swaggo/swag/example/celler/util"
+	"github.com/guancioul/NotionGoogleCalendarIntegration/util"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"
 )

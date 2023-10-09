@@ -405,7 +405,7 @@
                 }
             }
         },
-        "/api/v1/notion/createDatabase": {
+        "/api/v1/notion/createDatabase/{pageId}": {
             "post": {
                 "description": "Creates a database as a subpage in the specified parent page, with the specified properties schema. Currently, the parent of a new database must be a Notion page or a wiki database.",
                 "consumes": [
@@ -418,18 +418,86 @@
                     "notion"
                 ],
                 "summary": "Create a new Notion Database",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Page ID",
+                        "name": "pageId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.NotionCreateDatabaseRequest"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.NotionCreateDatabaseResponse"
+                                "$ref": "#/definitions/responseModel.NotionCreateDatabaseResponse"
                             }
                         }
                     },
                     "400": {
-                        "description": "fail",
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/notion/queryDatabase/{databaseId}": {
+            "post": {
+                "description": "Queries a database, returning a paginated array of `Page` objects within the database.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notion"
+                ],
+                "summary": "Query Notion Database",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Database ID",
+                        "name": "databaseId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.NotionQueryDatabaseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/responseModel.NotionQueryDatabaseResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
                         "schema": {
                             "type": "string"
                         }
@@ -1015,24 +1083,61 @@
                 }
             }
         },
-        "model.NotionCreateDatabaseResponse": {
+        "model.UpdateAccount": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "account name"
+                }
+            }
+        },
+        "requestModel.NotionCreateDatabaseRequest": {
+            "type": "object",
+            "properties": {
+                "properties": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "title": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            }
+        },
+        "requestModel.NotionQueryDatabaseRequest": {
+            "type": "object",
+            "properties": {
+                "filter": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "sorts": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            }
+        },
+        "responseModel.Database": {
             "type": "object",
             "properties": {
                 "archived": {
                     "type": "boolean"
                 },
-                "cover": {
+                "cover": {},
+                "created_by": {
                     "type": "object",
                     "properties": {
-                        "external": {
-                            "type": "object",
-                            "properties": {
-                                "url": {
-                                    "type": "string"
-                                }
-                            }
+                        "id": {
+                            "type": "string"
                         },
-                        "type": {
+                        "object": {
                             "type": "string"
                         }
                     }
@@ -1040,16 +1145,56 @@
                 "created_time": {
                     "type": "string"
                 },
-                "icon": {
+                "icon": {},
+                "id": {
+                    "type": "string"
+                },
+                "last_edited_by": {
                     "type": "object",
                     "properties": {
-                        "emoji": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "object": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "last_edited_time": {
+                    "type": "string"
+                },
+                "object": {
+                    "type": "string"
+                },
+                "parent": {
+                    "type": "object",
+                    "properties": {
+                        "database_id": {
                             "type": "string"
                         },
                         "type": {
                             "type": "string"
                         }
                     }
+                },
+                "properties": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "public_url": {},
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.NotionCreateDatabaseResponse": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "type": "boolean"
+                },
+                "created_time": {
+                    "type": "string"
                 },
                 "id": {
                     "type": "string"
@@ -1076,250 +1221,13 @@
                 },
                 "properties": {
                     "type": "object",
-                    "properties": {
-                        "+1": {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "people": {
-                                    "type": "object"
-                                },
-                                "type": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "Description": {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "rich_text": {
-                                    "type": "object"
-                                },
-                                "type": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "Food group": {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "select": {
-                                    "type": "object",
-                                    "properties": {
-                                        "options": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "color": {
-                                                        "type": "string"
-                                                    },
-                                                    "id": {
-                                                        "type": "string"
-                                                    },
-                                                    "name": {
-                                                        "type": "string"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "type": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "In stock": {
-                            "type": "object",
-                            "properties": {
-                                "checkbox": {
-                                    "type": "object"
-                                },
-                                "id": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "type": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "Last ordered": {
-                            "type": "object",
-                            "properties": {
-                                "date": {
-                                    "type": "object"
-                                },
-                                "id": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "type": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "Name": {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "title": {
-                                    "type": "object"
-                                },
-                                "type": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "Photo": {
-                            "type": "object",
-                            "properties": {
-                                "files": {
-                                    "type": "object"
-                                },
-                                "id": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "type": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "Price": {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "number": {
-                                    "type": "object",
-                                    "properties": {
-                                        "format": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
-                                "type": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "Store availability": {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "string"
-                                },
-                                "multi_select": {
-                                    "type": "object",
-                                    "properties": {
-                                        "options": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "color": {
-                                                        "type": "string"
-                                                    },
-                                                    "id": {
-                                                        "type": "string"
-                                                    },
-                                                    "name": {
-                                                        "type": "string"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "name": {
-                                    "type": "string"
-                                },
-                                "type": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
+                    "additionalProperties": true
                 },
                 "title": {
                     "type": "array",
                     "items": {
                         "type": "object",
-                        "properties": {
-                            "annotations": {
-                                "type": "object",
-                                "properties": {
-                                    "bold": {
-                                        "type": "boolean"
-                                    },
-                                    "code": {
-                                        "type": "boolean"
-                                    },
-                                    "color": {
-                                        "type": "string"
-                                    },
-                                    "italic": {
-                                        "type": "boolean"
-                                    },
-                                    "strikethrough": {
-                                        "type": "boolean"
-                                    },
-                                    "underline": {
-                                        "type": "boolean"
-                                    }
-                                }
-                            },
-                            "href": {},
-                            "plain_text": {
-                                "type": "string"
-                            },
-                            "text": {
-                                "type": "object",
-                                "properties": {
-                                    "content": {
-                                        "type": "string"
-                                    },
-                                    "link": {}
-                                }
-                            },
-                            "type": {
-                                "type": "string"
-                            }
-                        }
+                        "additionalProperties": true
                     }
                 },
                 "url": {
@@ -1327,12 +1235,30 @@
                 }
             }
         },
-        "model.UpdateAccount": {
+        "responseModel.NotionQueryDatabaseResponse": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "string",
-                    "example": "account name"
+                "developer_survey": {
+                    "type": "string"
+                },
+                "has_more": {
+                    "type": "boolean"
+                },
+                "next_cursor": {},
+                "object": {
+                    "type": "string"
+                },
+                "page_or_database": {
+                    "type": "object"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.Database"
+                    }
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         }

@@ -54,29 +54,82 @@ definitions:
         example: bottle_name
         type: string
     type: object
-  model.NotionCreateDatabaseResponse:
+  model.UpdateAccount:
+    properties:
+      name:
+        example: account name
+        type: string
+    type: object
+  requestModel.NotionCreateDatabaseRequest:
+    properties:
+      properties:
+        additionalProperties: true
+        type: object
+      title:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+    type: object
+  requestModel.NotionQueryDatabaseRequest:
+    properties:
+      filter:
+        additionalProperties: true
+        type: object
+      sorts:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+    type: object
+  responseModel.Database:
     properties:
       archived:
         type: boolean
-      cover:
+      cover: {}
+      created_by:
         properties:
-          external:
-            properties:
-              url:
-                type: string
-            type: object
-          type:
+          id:
+            type: string
+          object:
             type: string
         type: object
       created_time:
         type: string
-      icon:
+      icon: {}
+      id:
+        type: string
+      last_edited_by:
         properties:
-          emoji:
+          id:
+            type: string
+          object:
+            type: string
+        type: object
+      last_edited_time:
+        type: string
+      object:
+        type: string
+      parent:
+        properties:
+          database_id:
             type: string
           type:
             type: string
         type: object
+      properties:
+        additionalProperties: true
+        type: object
+      public_url: {}
+      url:
+        type: string
+    type: object
+  responseModel.NotionCreateDatabaseResponse:
+    properties:
+      archived:
+        type: boolean
+      created_time:
+        type: string
       id:
         type: string
       is_inline:
@@ -93,172 +146,32 @@ definitions:
             type: string
         type: object
       properties:
-        properties:
-          "+1":
-            properties:
-              id:
-                type: string
-              name:
-                type: string
-              people:
-                type: object
-              type:
-                type: string
-            type: object
-          Description:
-            properties:
-              id:
-                type: string
-              name:
-                type: string
-              rich_text:
-                type: object
-              type:
-                type: string
-            type: object
-          Food group:
-            properties:
-              id:
-                type: string
-              name:
-                type: string
-              select:
-                properties:
-                  options:
-                    items:
-                      properties:
-                        color:
-                          type: string
-                        id:
-                          type: string
-                        name:
-                          type: string
-                      type: object
-                    type: array
-                type: object
-              type:
-                type: string
-            type: object
-          In stock:
-            properties:
-              checkbox:
-                type: object
-              id:
-                type: string
-              name:
-                type: string
-              type:
-                type: string
-            type: object
-          Last ordered:
-            properties:
-              date:
-                type: object
-              id:
-                type: string
-              name:
-                type: string
-              type:
-                type: string
-            type: object
-          Name:
-            properties:
-              id:
-                type: string
-              name:
-                type: string
-              title:
-                type: object
-              type:
-                type: string
-            type: object
-          Photo:
-            properties:
-              files:
-                type: object
-              id:
-                type: string
-              name:
-                type: string
-              type:
-                type: string
-            type: object
-          Price:
-            properties:
-              id:
-                type: string
-              name:
-                type: string
-              number:
-                properties:
-                  format:
-                    type: string
-                type: object
-              type:
-                type: string
-            type: object
-          Store availability:
-            properties:
-              id:
-                type: string
-              multi_select:
-                properties:
-                  options:
-                    items:
-                      properties:
-                        color:
-                          type: string
-                        id:
-                          type: string
-                        name:
-                          type: string
-                      type: object
-                    type: array
-                type: object
-              name:
-                type: string
-              type:
-                type: string
-            type: object
+        additionalProperties: true
         type: object
       title:
         items:
-          properties:
-            annotations:
-              properties:
-                bold:
-                  type: boolean
-                code:
-                  type: boolean
-                color:
-                  type: string
-                italic:
-                  type: boolean
-                strikethrough:
-                  type: boolean
-                underline:
-                  type: boolean
-              type: object
-            href: {}
-            plain_text:
-              type: string
-            text:
-              properties:
-                content:
-                  type: string
-                link: {}
-              type: object
-            type:
-              type: string
+          additionalProperties: true
           type: object
         type: array
       url:
         type: string
     type: object
-  model.UpdateAccount:
+  responseModel.NotionQueryDatabaseResponse:
     properties:
-      name:
-        example: account name
+      developer_survey:
+        type: string
+      has_more:
+        type: boolean
+      next_cursor: {}
+      object:
+        type: string
+      page_or_database:
+        type: object
+      results:
+        items:
+          $ref: '#/definitions/responseModel.Database'
+        type: array
+      type:
         type: string
     type: object
 info:
@@ -529,13 +442,25 @@ paths:
       summary: Get Google Calendar Event List
       tags:
       - googleCalendar
-  /api/v1/notion/createDatabase:
+  /api/v1/notion/createDatabase/{pageId}:
     post:
       consumes:
       - application/json
       description: Creates a database as a subpage in the specified parent page, with
         the specified properties schema. Currently, the parent of a new database must
         be a Notion page or a wiki database.
+      parameters:
+      - description: Page ID
+        in: path
+        name: pageId
+        required: true
+        type: string
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.NotionCreateDatabaseRequest'
       produces:
       - application/json
       responses:
@@ -543,13 +468,47 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.NotionCreateDatabaseResponse'
+              $ref: '#/definitions/responseModel.NotionCreateDatabaseResponse'
             type: array
         "400":
-          description: fail
+          description: Invalid input
           schema:
             type: string
       summary: Create a new Notion Database
+      tags:
+      - notion
+  /api/v1/notion/queryDatabase/{databaseId}:
+    post:
+      consumes:
+      - application/json
+      description: Queries a database, returning a paginated array of `Page` objects
+        within the database.
+      parameters:
+      - description: Database ID
+        in: path
+        name: databaseId
+        required: true
+        type: string
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.NotionQueryDatabaseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responseModel.NotionQueryDatabaseResponse'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            type: string
+      summary: Query Notion Database
       tags:
       - notion
   /bottles:

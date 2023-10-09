@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"net/http"
 
-	"github.com/swaggo/swag/example/celler/model"
+	"github.com/guancioul/NotionGoogleCalendarIntegration/model"
 )
 
 type Client struct {

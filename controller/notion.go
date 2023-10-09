@@ -7,10 +7,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/swaggo/swag/example/celler/handler"
-	"github.com/swaggo/swag/example/celler/model"
-	_ "github.com/swaggo/swag/example/celler/model"
-	"github.com/swaggo/swag/example/celler/util"
+	"github.com/guancioul/NotionGoogleCalendarIntegration/handler"
+	"github.com/guancioul/NotionGoogleCalendarIntegration/model/requestModel"
+	"github.com/guancioul/NotionGoogleCalendarIntegration/model/responseModel"
+	"github.com/guancioul/NotionGoogleCalendarIntegration/util"
 )
 
 // CreateNotionDatabase godoc
@@ -20,112 +20,52 @@ import (
 //	@Tags			notion
 //	@Accept			json
 //	@Produce		json
-//	@Success		200		{array}		model.NotionCreateDatabaseResponse
-//	@Failure		400		{string}	string			"fail"
+//	@Param			pageId	path	string	true	"Page ID"
+//	@Param 			request body 	requestModel.NotionCreateDatabaseRequest true	"Request Body"
+//	@Success		200		{array}		responseModel.NotionCreateDatabaseResponse
+//	@Failure		400		{string}	string			"Invalid input"
 //	@Router			/api/v1/notion/createDatabase/{pageId} [post]
 func (c *Controller) CreateNotionDatabase(ctx *gin.Context) {
-	pageId := ctx.Param("pageId")
+	// Get Authorization from config
 	configHandler := util.NewConfigHandler()
 	auth := configHandler.GetSecretConfig().Get("Authorization")
 
+	pageId := ctx.Param("pageId")
+	// Bind the request body to struct
+	var requests requestModel.NotionCreateDatabaseRequest
+	if err := ctx.ShouldBindJSON(&requests); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Marshal the struct to json
+	titleJson, err := json.Marshal(requests.Title)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	propertiesJson, err := json.Marshal(requests.Properties)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Send the request to Notion API
 	client := handler.NewClient()
 	header := map[string]string{
 		"Authorization":  auth.(string),
 		"Notion-Version": "2022-06-28",
 		"Content-Type":   "application/json",
 	}
-	body := []byte(`{
+	bodyString := `{
 		"is_inline": true,
 		"parent": {
 			"type": "page_id",
 			"page_id": "` + pageId + `"
 		},
-		"icon": {
-			"type": "emoji",
-				"emoji": "📝"
-		  },
-		  "cover": {
-			  "type": "external",
-			"external": {
-				"url": "https://website.domain/images/image.png"
-			}
-		  },
-		"title": [
-			{
-				"type": "text",
-				"text": {
-					"content": "Grocery List",
-					"link": null
-				}
-			}
-		],
-		"properties": {
-			"Name": {
-				"title": {}
-			},
-			"Description": {
-				"rich_text": {}
-			},
-			"In stock": {
-				"checkbox": {}
-			},
-			"Food group": {
-				"select": {
-					"options": [
-						{
-							"name": "🥦Vegetable",
-							"color": "green"
-						},
-						{
-							"name": "🍎Fruit",
-							"color": "red"
-						},
-						{
-							"name": "💪Protein",
-							"color": "yellow"
-						}
-					]
-				}
-			},
-			"Price": {
-				"number": {
-					"format": "dollar"
-				}
-			},
-			"Last ordered": {
-				"date": {}
-			},
-			"Store availability": {
-				"type": "multi_select",
-				"multi_select": {
-					"options": [
-						{
-							"name": "Duc Loi Market",
-							"color": "blue"
-						},
-						{
-							"name": "Rainbow Grocery",
-							"color": "gray"
-						},
-						{
-							"name": "Nijiya Market",
-							"color": "purple"
-						},
-						{
-							"name": "Gus's Community Market",
-							"color": "yellow"
-						}
-					]
-				}
-			},
-			"+1": {
-				"people": {}
-			},
-			"Photo": {
-				"files": {}
-			}
-		}
-	}`)
+		"title": ` + string(titleJson) + `,
+		"properties": ` + string(propertiesJson) + ` 
+	}`
+	body := []byte(bodyString)
+
 	response, err := client.Post("https://api.notion.com/v1/databases", header, body)
 	if err != nil {
 		log.Fatalln(err)
@@ -141,8 +81,70 @@ func (c *Controller) CreateNotionDatabase(ctx *gin.Context) {
 	var data []byte = []byte(bodyStr)
 
 	// Unmarshal the response body to struct
-	var responseCreateNotionDatabase model.NotionCreateDatabaseResponse
+	var responseCreateNotionDatabase responseModel.NotionCreateDatabaseResponse
 	json.Unmarshal(data, &responseCreateNotionDatabase)
 
 	ctx.JSON(http.StatusOK, responseCreateNotionDatabase)
+}
+
+// QueryNotionDatabase godoc
+//
+//	@Summary		Query Notion Database
+//	@Description	Queries a database, returning a paginated array of `Page` objects within the database.
+//	@Tags			notion
+//	@Accept			json
+//	@Produce		json
+//	@Param			databaseId	path	string	true	"Database ID"
+//	@Param 			request body 	requestModel.NotionQueryDatabaseRequest true	"Request Body"
+//	@Success		200		{array}		responseModel.NotionQueryDatabaseResponse
+//	@Failure		400		{string}	string			"Invalid input"
+//	@Router			/api/v1/notion/queryDatabase/{databaseId} [post]
+func (c *Controller) QueryNotionDatabase(ctx *gin.Context) {
+	// Get Authorization from config
+	configHandler := util.NewConfigHandler()
+	auth := configHandler.GetSecretConfig().Get("Authorization")
+
+	databaseId := ctx.Param("databaseId")
+
+	var requests requestModel.NotionQueryDatabaseRequest
+	if err := ctx.ShouldBindJSON(&requests); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Marshal the struct to json
+	requestJson, err := json.Marshal(requests)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Send the request to Notion API
+	client := handler.NewClient()
+	header := map[string]string{
+		"Authorization":  auth.(string),
+		"Notion-Version": "2022-06-28",
+		"Content-Type":   "application/json",
+	}
+	body := []byte(requestJson)
+
+	response, err := client.Post("https://api.notion.com/v1/databases/"+databaseId+"/query", header, body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer response.Body.Close()
+
+	// Change the response body to []byte type
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	bodyStr := string(responseBody)
+	var data []byte = []byte(bodyStr)
+
+	// Unmarshal the response body to struct
+	var responseQueryNotionDatabase responseModel.NotionQueryDatabaseResponse
+	json.Unmarshal(data, &responseQueryNotionDatabase)
+
+	ctx.JSON(http.StatusOK, responseQueryNotionDatabase)
+
 }
