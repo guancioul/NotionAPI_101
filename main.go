@@ -68,7 +68,7 @@ func main() {
 		}
 		googleCalendar := v1.Group("/googleCalendar")
 		{
-			googleCalendar.GET("/getEventList", c.GetGoogleCalendarEventList)
+			googleCalendar.GET("/getEventList/:calendarId", c.GetGoogleCalendarEventList)
 		}
 		examples := v1.Group("/examples")
 		{

@@ -4,9 +4,9 @@
         "contact": {}
     },
     "paths": {
-        "/api/v1/googleCalendar/getEventList": {
+        "/api/v1/googleCalendar/getEventList/{calendarId}": {
             "get": {
-                "description": "Get Google Calendar Event List",
+                "description": "Get a list of events from Google Calendar",
                 "consumes": [
                     "application/json"
                 ],
@@ -17,18 +17,45 @@
                     "googleCalendar"
                 ],
                 "summary": "Get Google Calendar Event List",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Database ID",
+                        "name": "calendarId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "timeMin",
+                        "name": "timeMin",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "timeMax",
+                        "name": "timeMax",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "success",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "type": "string"
+                                "$ref": "#/definitions/responseModel.CalendarEvents"
                             }
                         }
                     },
                     "400": {
                         "description": "fail",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Calendar not found",
                         "schema": {
                             "type": "string"
                         }
@@ -38,7 +65,7 @@
         },
         "/api/v1/notion/createDBPage/{databaseId}": {
             "post": {
-                "description": "Update a database as specified by the parameters.",
+                "description": "Creates a new page in the specified database or as a child of an existing page.",
                 "consumes": [
                     "application/json"
                 ],
@@ -650,6 +677,47 @@
                 }
             }
         },
+        "responseModel.CalendarEvents": {
+            "type": "object",
+            "properties": {
+                "accessRole": {
+                    "type": "string"
+                },
+                "defaultReminders": {
+                    "type": "array",
+                    "items": {
+                        "type": "object"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "etag": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.Event"
+                    }
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "nextSyncToken": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "timeZone": {
+                    "type": "string"
+                },
+                "updated": {
+                    "type": "string"
+                }
+            }
+        },
         "responseModel.Database": {
             "type": "object",
             "properties": {
@@ -709,6 +777,88 @@
                 },
                 "public_url": {},
                 "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.Event": {
+            "type": "object",
+            "properties": {
+                "created": {
+                    "type": "string"
+                },
+                "creator": {
+                    "type": "object",
+                    "properties": {
+                        "email": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "end": {
+                    "type": "object",
+                    "properties": {
+                        "dateTime": {
+                            "type": "string"
+                        },
+                        "timeZone": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "etag": {
+                    "type": "string"
+                },
+                "eventType": {
+                    "type": "string"
+                },
+                "htmlLink": {
+                    "type": "string"
+                },
+                "iCalUID": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "organizer": {
+                    "type": "object",
+                    "properties": {
+                        "displayName": {
+                            "type": "string"
+                        },
+                        "email": {
+                            "type": "string"
+                        },
+                        "self": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "sequence": {
+                    "type": "integer"
+                },
+                "start": {
+                    "type": "object",
+                    "properties": {
+                        "dateTime": {
+                            "type": "string"
+                        },
+                        "timeZone": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "status": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "updated": {
                     "type": "string"
                 }
             }

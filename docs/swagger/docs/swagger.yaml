@@ -41,6 +41,33 @@ definitions:
           type: object
         type: array
     type: object
+  responseModel.CalendarEvents:
+    properties:
+      accessRole:
+        type: string
+      defaultReminders:
+        items:
+          type: object
+        type: array
+      description:
+        type: string
+      etag:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/responseModel.Event'
+        type: array
+      kind:
+        type: string
+      nextSyncToken:
+        type: string
+      summary:
+        type: string
+      timeZone:
+        type: string
+      updated:
+        type: string
+    type: object
   responseModel.Database:
     properties:
       archived:
@@ -81,6 +108,59 @@ definitions:
         type: object
       public_url: {}
       url:
+        type: string
+    type: object
+  responseModel.Event:
+    properties:
+      created:
+        type: string
+      creator:
+        properties:
+          email:
+            type: string
+        type: object
+      end:
+        properties:
+          dateTime:
+            type: string
+          timeZone:
+            type: string
+        type: object
+      etag:
+        type: string
+      eventType:
+        type: string
+      htmlLink:
+        type: string
+      iCalUID:
+        type: string
+      id:
+        type: string
+      kind:
+        type: string
+      organizer:
+        properties:
+          displayName:
+            type: string
+          email:
+            type: string
+          self:
+            type: boolean
+        type: object
+      sequence:
+        type: integer
+      start:
+        properties:
+          dateTime:
+            type: string
+          timeZone:
+            type: string
+        type: object
+      status:
+        type: string
+      summary:
+        type: string
+      updated:
         type: string
     type: object
   responseModel.NotionCreateDatabaseResponse:
@@ -136,11 +216,25 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/v1/googleCalendar/getEventList:
+  /api/v1/googleCalendar/getEventList/{calendarId}:
     get:
       consumes:
       - application/json
-      description: Get Google Calendar Event List
+      description: Get a list of events from Google Calendar
+      parameters:
+      - description: Database ID
+        in: path
+        name: calendarId
+        required: true
+        type: string
+      - description: timeMin
+        in: query
+        name: timeMin
+        type: string
+      - description: timeMax
+        in: query
+        name: timeMax
+        type: string
       produces:
       - application/json
       responses:
@@ -148,10 +242,14 @@ paths:
           description: success
           schema:
             items:
-              type: string
+              $ref: '#/definitions/responseModel.CalendarEvents'
             type: array
         "400":
           description: fail
+          schema:
+            type: string
+        "404":
+          description: Calendar not found
           schema:
             type: string
       summary: Get Google Calendar Event List
@@ -161,7 +259,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Update a database as specified by the parameters.
+      description: Creates a new page in the specified database or as a child of an
+        existing page.
       parameters:
       - description: Database ID
         in: path
