@@ -146,5 +146,69 @@ func (c *Controller) QueryNotionDatabase(ctx *gin.Context) {
 	json.Unmarshal(data, &responseQueryNotionDatabase)
 
 	ctx.JSON(http.StatusOK, responseQueryNotionDatabase)
+}
 
+// Create a Page godoc
+//
+//	@Summary		Create a new Notion Page
+//	@Description	Creates a new page in the specified database or as a child of an existing page.
+//	@Tags			notion
+//	@Accept			json
+//	@Produce		json
+//	@Param			databaseId	path	string	true	"Database ID"
+//	@Param 			request body 	requestModel.NotionCreateDBPageRequest true	"Request Body"
+//	@Success		200		{array}		responseModel.Database
+//	@Failure		400		{string}	string			"Invalid input"
+//	@Router			/api/v1/notion/createDBPage/{databaseId} [post]
+func (c *Controller) CreateNotionDBPage(ctx *gin.Context) {
+	// Get Authorization from config
+	configHandler := util.NewConfigHandler()
+	auth := configHandler.GetSecretConfig().Get("Authorization")
+
+	databaseId := ctx.Param("databaseId")
+
+	var requests requestModel.NotionCreateDBPageRequest
+	if err := ctx.ShouldBindJSON(&requests); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	propertiesJson, err := json.Marshal(requests.Properties)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	// Send the request to Notion API
+	client := handler.NewClient()
+	header := map[string]string{
+		"Authorization":  auth.(string),
+		"Notion-Version": "2022-06-28",
+		"Content-Type":   "application/json",
+	}
+	bodyString := `{
+			"parent": {
+				"database_id": "` + databaseId + `"
+			},
+			"properties": ` + string(propertiesJson) + ` 
+		}`
+	body := []byte(bodyString)
+
+	response, err := client.Post("https://api.notion.com/v1/pages", header, body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	defer response.Body.Close()
+
+	// Change the response body to []byte type
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	bodyStr := string(responseBody)
+	var data []byte = []byte(bodyStr)
+
+	// Unmarshal the response body to struct
+	var responseCreateNotionDatabase responseModel.NotionCreateDatabaseResponse
+	json.Unmarshal(data, &responseCreateNotionDatabase)
+
+	ctx.JSON(http.StatusOK, responseCreateNotionDatabase)
 }

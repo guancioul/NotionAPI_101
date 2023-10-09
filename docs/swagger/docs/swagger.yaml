@@ -1,19 +1,4 @@
 definitions:
-  controller.Message:
-    properties:
-      message:
-        example: message
-        type: string
-    type: object
-  httputil.HTTPError:
-    properties:
-      code:
-        example: 400
-        type: integer
-      message:
-        example: status bad request
-        type: string
-    type: object
   model.Account:
     properties:
       id:
@@ -28,37 +13,11 @@ definitions:
         format: uuid
         type: string
     type: object
-  model.AddAccount:
+  requestModel.NotionCreateDBPageRequest:
     properties:
-      name:
-        example: account name
-        type: string
-    type: object
-  model.Admin:
-    properties:
-      id:
-        example: 1
-        type: integer
-      name:
-        example: admin name
-        type: string
-    type: object
-  model.Bottle:
-    properties:
-      account:
-        $ref: '#/definitions/model.Account'
-      id:
-        example: 1
-        type: integer
-      name:
-        example: bottle_name
-        type: string
-    type: object
-  model.UpdateAccount:
-    properties:
-      name:
-        example: account name
-        type: string
+      properties:
+        additionalProperties: true
+        type: object
     type: object
   requestModel.NotionCreateDatabaseRequest:
     properties:
@@ -177,250 +136,6 @@ definitions:
 info:
   contact: {}
 paths:
-  /accounts:
-    get:
-      consumes:
-      - application/json
-      description: get accounts
-      parameters:
-      - description: name search by q
-        format: email
-        in: query
-        name: q
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.Account'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: List accounts
-      tags:
-      - accounts
-    post:
-      consumes:
-      - application/json
-      description: add by json account
-      parameters:
-      - description: Add account
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/model.AddAccount'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Account'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Add an account
-      tags:
-      - accounts
-  /accounts/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete by account ID
-      parameters:
-      - description: Account ID
-        format: int64
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-          schema:
-            $ref: '#/definitions/model.Account'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Delete an account
-      tags:
-      - accounts
-    get:
-      consumes:
-      - application/json
-      description: get string by ID
-      parameters:
-      - description: Account ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Account'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Show an account
-      tags:
-      - accounts
-    patch:
-      consumes:
-      - application/json
-      description: Update by json account
-      parameters:
-      - description: Account ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Update account
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/model.UpdateAccount'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Account'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Update an account
-      tags:
-      - accounts
-  /accounts/{id}/images:
-    post:
-      consumes:
-      - multipart/form-data
-      description: Upload file
-      parameters:
-      - description: Account ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: account image
-        in: formData
-        name: file
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.Message'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Upload account image
-      tags:
-      - accounts
-  /admin/auth:
-    post:
-      consumes:
-      - application/json
-      description: get admin info
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Admin'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Auth admin
-      tags:
-      - accounts
-      - admin
   /api/v1/googleCalendar/getEventList:
     get:
       consumes:
@@ -442,6 +157,39 @@ paths:
       summary: Get Google Calendar Event List
       tags:
       - googleCalendar
+  /api/v1/notion/createDBPage/{databaseId}:
+    post:
+      consumes:
+      - application/json
+      description: Update a database as specified by the parameters.
+      parameters:
+      - description: Database ID
+        in: path
+        name: databaseId
+        required: true
+        type: string
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.NotionCreateDBPageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responseModel.Database'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            type: string
+      summary: Create a new Notion Page
+      tags:
+      - notion
   /api/v1/notion/createDatabase/{pageId}:
     post:
       consumes:
@@ -511,69 +259,6 @@ paths:
       summary: Query Notion Database
       tags:
       - notion
-  /bottles:
-    get:
-      consumes:
-      - application/json
-      description: get bottles
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.Bottle'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: List bottles
-      tags:
-      - bottles
-  /bottles/{id}:
-    get:
-      consumes:
-      - application/json
-      description: get string by ID
-      operationId: get-string-by-int
-      parameters:
-      - description: Bottle ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Bottle'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Show a bottle
-      tags:
-      - bottles
   /examples/attribute:
     get:
       consumes:

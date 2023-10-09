@@ -64,29 +64,11 @@ func main() {
 		{
 			notion.POST("/createDatabase/:pageId", c.CreateNotionDatabase)
 			notion.POST("/queryDatabase/:databaseId", c.QueryNotionDatabase)
+			notion.POST("/createDBPage/:databaseId", c.CreateNotionDBPage)
 		}
 		googleCalendar := v1.Group("/googleCalendar")
 		{
 			googleCalendar.GET("/getEventList", c.GetGoogleCalendarEventList)
-		}
-		accounts := v1.Group("/accounts")
-		{
-			accounts.GET(":id", c.ShowAccount)
-			accounts.GET("", c.ListAccounts)
-			accounts.POST("", c.AddAccount)
-			accounts.DELETE(":id", c.DeleteAccount)
-			accounts.PATCH(":id", c.UpdateAccount)
-			accounts.POST(":id/images", c.UploadAccountImage)
-		}
-		bottles := v1.Group("/bottles")
-		{
-			bottles.GET(":id", c.ShowBottle)
-			bottles.GET("", c.ListBottles)
-		}
-		admin := v1.Group("/admin")
-		{
-			admin.Use(auth())
-			admin.POST("/auth", c.Auth)
 		}
 		examples := v1.Group("/examples")
 		{

@@ -9,3 +9,7 @@ type NotionQueryDatabaseRequest struct {
 	Sorts  []map[string]interface{} `json:"sorts"`
 	Filter map[string]interface{}   `json:"filter"`
 }
+
+type NotionCreateDBPageRequest struct {
+	Properties map[string]interface{} `json:"properties"`
+}
