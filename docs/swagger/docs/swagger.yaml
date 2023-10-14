@@ -358,6 +358,38 @@ paths:
       summary: Query Notion Database
       tags:
       - notion
+  /api/v1/sync/syncNotionToGoogleCalendar/{databaseId}/{calendarId}:
+    post:
+      consumes:
+      - application/json
+      description: Sync Google Calendar to Notion for one day
+      parameters:
+      - description: Page ID
+        in: path
+        name: databaseId
+        required: true
+        type: string
+      - description: Calendar ID
+        in: path
+        name: calendarId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responseModel.NotionCreateDatabaseResponse'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            type: string
+      summary: Sync Google Calendar to Notion
+      tags:
+      - sync
   /examples/attribute:
     get:
       consumes:

@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/guancioul/NotionGoogleCalendarIntegration/handler"
+	"github.com/guancioul/NotionGoogleCalendarIntegration/infra"
 	"github.com/guancioul/NotionGoogleCalendarIntegration/model/requestModel"
 	"github.com/guancioul/NotionGoogleCalendarIntegration/model/responseModel"
 	"github.com/guancioul/NotionGoogleCalendarIntegration/util"
@@ -100,10 +101,6 @@ func (c *Controller) CreateNotionDatabase(ctx *gin.Context) {
 //	@Failure		400		{string}	string			"Invalid input"
 //	@Router			/api/v1/notion/queryDatabase/{databaseId} [post]
 func (c *Controller) QueryNotionDatabase(ctx *gin.Context) {
-	// Get Authorization from config
-	configHandler := util.NewConfigHandler()
-	auth := configHandler.GetSecretConfig().Get("Authorization")
-
 	databaseId := ctx.Param("databaseId")
 
 	var requests requestModel.NotionQueryDatabaseRequest
@@ -112,40 +109,9 @@ func (c *Controller) QueryNotionDatabase(ctx *gin.Context) {
 		return
 	}
 
-	// Marshal the struct to json
-	requestJson, err := json.Marshal(requests)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	response := infra.QueryNotionDatabaseService(databaseId, requests)
 
-	// Send the request to Notion API
-	client := handler.NewClient()
-	header := map[string]string{
-		"Authorization":  auth.(string),
-		"Notion-Version": "2022-06-28",
-		"Content-Type":   "application/json",
-	}
-	body := []byte(requestJson)
-
-	response, err := client.Post("https://api.notion.com/v1/databases/"+databaseId+"/query", header, body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	defer response.Body.Close()
-
-	// Change the response body to []byte type
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	bodyStr := string(responseBody)
-	var data []byte = []byte(bodyStr)
-
-	// Unmarshal the response body to struct
-	var responseQueryNotionDatabase responseModel.NotionQueryDatabaseResponse
-	json.Unmarshal(data, &responseQueryNotionDatabase)
-
-	ctx.JSON(http.StatusOK, responseQueryNotionDatabase)
+	ctx.JSON(http.StatusOK, response)
 }
 
 // Create a Page godoc
@@ -161,10 +127,6 @@ func (c *Controller) QueryNotionDatabase(ctx *gin.Context) {
 //	@Failure		400		{string}	string			"Invalid input"
 //	@Router			/api/v1/notion/createDBPage/{databaseId} [post]
 func (c *Controller) CreateNotionDBPage(ctx *gin.Context) {
-	// Get Authorization from config
-	configHandler := util.NewConfigHandler()
-	auth := configHandler.GetSecretConfig().Get("Authorization")
-
 	databaseId := ctx.Param("databaseId")
 
 	var requests requestModel.NotionCreateDBPageRequest
@@ -172,43 +134,8 @@ func (c *Controller) CreateNotionDBPage(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	propertiesJson, err := json.Marshal(requests.Properties)
-	if err != nil {
-		log.Fatalln(err)
-	}
 
-	// Send the request to Notion API
-	client := handler.NewClient()
-	header := map[string]string{
-		"Authorization":  auth.(string),
-		"Notion-Version": "2022-06-28",
-		"Content-Type":   "application/json",
-	}
-	bodyString := `{
-			"parent": {
-				"database_id": "` + databaseId + `"
-			},
-			"properties": ` + string(propertiesJson) + ` 
-		}`
-	body := []byte(bodyString)
+	response := infra.CreateNotionPageService(databaseId, requests)
 
-	response, err := client.Post("https://api.notion.com/v1/pages", header, body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	defer response.Body.Close()
-
-	// Change the response body to []byte type
-	responseBody, err := io.ReadAll(response.Body)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	bodyStr := string(responseBody)
-	var data []byte = []byte(bodyStr)
-
-	// Unmarshal the response body to struct
-	var responseCreateNotionDatabase responseModel.NotionCreateDatabaseResponse
-	json.Unmarshal(data, &responseCreateNotionDatabase)
-
-	ctx.JSON(http.StatusOK, responseCreateNotionDatabase)
+	ctx.JSON(http.StatusOK, response)
 }

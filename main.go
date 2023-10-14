@@ -70,6 +70,10 @@ func main() {
 		{
 			googleCalendar.GET("/getEventList/:calendarId", c.GetGoogleCalendarEventList)
 		}
+		sync := v1.Group("/sync")
+		{
+			sync.POST("/syncNotionToGoogleCalendar/:databaseId/:calendarId", c.SyncGoogleCalendarToNotion)
+		}
 		examples := v1.Group("/examples")
 		{
 			examples.GET("ping", c.PingExample)

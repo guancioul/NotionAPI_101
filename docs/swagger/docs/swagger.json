@@ -213,6 +213,54 @@
                 }
             }
         },
+        "/api/v1/sync/syncNotionToGoogleCalendar/{databaseId}/{calendarId}": {
+            "post": {
+                "description": "Sync Google Calendar to Notion for one day",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sync"
+                ],
+                "summary": "Sync Google Calendar to Notion",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Page ID",
+                        "name": "databaseId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Calendar ID",
+                        "name": "calendarId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/responseModel.NotionCreateDatabaseResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/examples/attribute": {
             "get": {
                 "description": "attribute",
