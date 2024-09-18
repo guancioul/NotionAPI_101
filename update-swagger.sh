@@ -1,4 +1,6 @@
 #!/bin/bash
+export PATH="$PATH:$(go env GOPATH)/bin"
+export GO111MODULE=on
 
 # rm -f -r ../assets/swagger/docs
 rm -f -r ./docs/swagger/docs

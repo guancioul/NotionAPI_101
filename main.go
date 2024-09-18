@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/swaggo/swag/example/celler/controller"
-	_ "github.com/swaggo/swag/example/celler/docs"
-	"github.com/swaggo/swag/example/celler/httputil"
+	"github.com/guancioul/NotionGoogleCalendarIntegration/controller"
+	_ "github.com/guancioul/NotionGoogleCalendarIntegration/docs"
+	"github.com/guancioul/NotionGoogleCalendarIntegration/httputil"
 )
 
 //	@title			Swagger Example API
@@ -60,24 +60,19 @@ func main() {
 
 	v1 := r.Group("/api/v1")
 	{
-		accounts := v1.Group("/accounts")
+		notion := v1.Group("/notion")
 		{
-			accounts.GET(":id", c.ShowAccount)
-			accounts.GET("", c.ListAccounts)
-			accounts.POST("", c.AddAccount)
-			accounts.DELETE(":id", c.DeleteAccount)
-			accounts.PATCH(":id", c.UpdateAccount)
-			accounts.POST(":id/images", c.UploadAccountImage)
+			notion.POST("/createDatabase/:pageId", c.CreateNotionDatabase)
+			notion.POST("/queryDatabase/:databaseId", c.QueryNotionDatabase)
+			notion.POST("/createDBPage/:databaseId", c.CreateNotionDBPage)
 		}
-		bottles := v1.Group("/bottles")
+		googleCalendar := v1.Group("/googleCalendar")
 		{
-			bottles.GET(":id", c.ShowBottle)
-			bottles.GET("", c.ListBottles)
+			googleCalendar.GET("/getEventList/:calendarId", c.GetGoogleCalendarEventList)
 		}
-		admin := v1.Group("/admin")
+		sync := v1.Group("/sync")
 		{
-			admin.Use(auth())
-			admin.POST("/auth", c.Auth)
+			sync.POST("/syncNotionToGoogleCalendar/:databaseId/:calendarId", c.SyncGoogleCalendarToNotion)
 		}
 		examples := v1.Group("/examples")
 		{

@@ -1,19 +1,4 @@
 definitions:
-  controller.Message:
-    properties:
-      message:
-        example: message
-        type: string
-    type: object
-  httputil.HTTPError:
-    properties:
-      code:
-        example: 400
-        type: integer
-      message:
-        example: status bad request
-        type: string
-    type: object
   model.Account:
     properties:
       id:
@@ -28,51 +13,366 @@ definitions:
         format: uuid
         type: string
     type: object
-  model.AddAccount:
+  requestModel.NotionCreateDBPageRequest:
     properties:
-      name:
-        example: account name
+      properties:
+        additionalProperties: true
+        type: object
+    type: object
+  requestModel.NotionCreateDatabaseRequest:
+    properties:
+      properties:
+        additionalProperties: true
+        type: object
+      title:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+    type: object
+  requestModel.NotionQueryDatabaseRequest:
+    properties:
+      filter:
+        additionalProperties: true
+        type: object
+      sorts:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+    type: object
+  responseModel.CalendarEvents:
+    properties:
+      accessRole:
+        type: string
+      defaultReminders:
+        items:
+          type: object
+        type: array
+      description:
+        type: string
+      etag:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/responseModel.Event'
+        type: array
+      kind:
+        type: string
+      nextSyncToken:
+        type: string
+      summary:
+        type: string
+      timeZone:
+        type: string
+      updated:
         type: string
     type: object
-  model.Admin:
+  responseModel.Database:
     properties:
+      archived:
+        type: boolean
+      cover: {}
+      created_by:
+        properties:
+          id:
+            type: string
+          object:
+            type: string
+        type: object
+      created_time:
+        type: string
+      icon: {}
       id:
-        example: 1
-        type: integer
-      name:
-        example: admin name
+        type: string
+      last_edited_by:
+        properties:
+          id:
+            type: string
+          object:
+            type: string
+        type: object
+      last_edited_time:
+        type: string
+      object:
+        type: string
+      parent:
+        properties:
+          database_id:
+            type: string
+          type:
+            type: string
+        type: object
+      properties:
+        additionalProperties: true
+        type: object
+      public_url: {}
+      url:
         type: string
     type: object
-  model.Bottle:
+  responseModel.Event:
     properties:
-      account:
-        $ref: '#/definitions/model.Account'
+      created:
+        type: string
+      creator:
+        properties:
+          email:
+            type: string
+        type: object
+      end:
+        properties:
+          dateTime:
+            type: string
+          timeZone:
+            type: string
+        type: object
+      etag:
+        type: string
+      eventType:
+        type: string
+      htmlLink:
+        type: string
+      iCalUID:
+        type: string
       id:
-        example: 1
+        type: string
+      kind:
+        type: string
+      organizer:
+        properties:
+          displayName:
+            type: string
+          email:
+            type: string
+          self:
+            type: boolean
+        type: object
+      sequence:
         type: integer
-      name:
-        example: bottle_name
+      start:
+        properties:
+          dateTime:
+            type: string
+          timeZone:
+            type: string
+        type: object
+      status:
+        type: string
+      summary:
+        type: string
+      updated:
         type: string
     type: object
-  model.UpdateAccount:
+  responseModel.NotionCreateDatabaseResponse:
     properties:
-      name:
-        example: account name
+      archived:
+        type: boolean
+      created_time:
+        type: string
+      id:
+        type: string
+      is_inline:
+        type: boolean
+      last_edited_time:
+        type: string
+      object:
+        type: string
+      parent:
+        properties:
+          page_id:
+            type: string
+          type:
+            type: string
+        type: object
+      properties:
+        additionalProperties: true
+        type: object
+      title:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+      url:
+        type: string
+    type: object
+  responseModel.NotionQueryDatabaseResponse:
+    properties:
+      developer_survey:
+        type: string
+      has_more:
+        type: boolean
+      next_cursor: {}
+      object:
+        type: string
+      page_or_database:
+        type: object
+      results:
+        items:
+          $ref: '#/definitions/responseModel.Database'
+        type: array
+      type:
         type: string
     type: object
 info:
   contact: {}
 paths:
-  /accounts:
+  /api/v1/googleCalendar/getEventList/{calendarId}:
     get:
       consumes:
       - application/json
-      description: get accounts
+      description: Get a list of events from Google Calendar
       parameters:
-      - description: name search by q
-        format: email
+      - description: Database ID
+        in: path
+        name: calendarId
+        required: true
+        type: string
+      - description: timeMin
         in: query
-        name: q
+        name: timeMin
+        type: string
+      - description: timeMax
+        in: query
+        name: timeMax
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            items:
+              $ref: '#/definitions/responseModel.CalendarEvents'
+            type: array
+        "400":
+          description: fail
+          schema:
+            type: string
+        "404":
+          description: Calendar not found
+          schema:
+            type: string
+      summary: Get Google Calendar Event List
+      tags:
+      - googleCalendar
+  /api/v1/notion/createDBPage/{databaseId}:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new page in the specified database or as a child of an
+        existing page.
+      parameters:
+      - description: Database ID
+        in: path
+        name: databaseId
+        required: true
+        type: string
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.NotionCreateDBPageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responseModel.Database'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            type: string
+      summary: Create a new Notion Page
+      tags:
+      - notion
+  /api/v1/notion/createDatabase/{pageId}:
+    post:
+      consumes:
+      - application/json
+      description: Creates a database as a subpage in the specified parent page, with
+        the specified properties schema. Currently, the parent of a new database must
+        be a Notion page or a wiki database.
+      parameters:
+      - description: Page ID
+        in: path
+        name: pageId
+        required: true
+        type: string
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.NotionCreateDatabaseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responseModel.NotionCreateDatabaseResponse'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            type: string
+      summary: Create a new Notion Database
+      tags:
+      - notion
+  /api/v1/notion/queryDatabase/{databaseId}:
+    post:
+      consumes:
+      - application/json
+      description: Queries a database, returning a paginated array of `Page` objects
+        within the database.
+      parameters:
+      - description: Database ID
+        in: path
+        name: databaseId
+        required: true
+        type: string
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requestModel.NotionQueryDatabaseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/responseModel.NotionQueryDatabaseResponse'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            type: string
+      summary: Query Notion Database
+      tags:
+      - notion
+  /api/v1/sync/syncNotionToGoogleCalendar/{databaseId}/{calendarId}:
+    post:
+      consumes:
+      - application/json
+      description: Sync Google Calendar to Notion for one day
+      parameters:
+      - description: Page ID
+        in: path
+        name: databaseId
+        required: true
+        type: string
+      - description: Calendar ID
+        in: path
+        name: calendarId
+        required: true
         type: string
       produces:
       - application/json
@@ -81,295 +381,15 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.Account'
+              $ref: '#/definitions/responseModel.NotionCreateDatabaseResponse'
             type: array
         "400":
-          description: Bad Request
+          description: Invalid input
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: List accounts
+            type: string
+      summary: Sync Google Calendar to Notion
       tags:
-      - accounts
-    post:
-      consumes:
-      - application/json
-      description: add by json account
-      parameters:
-      - description: Add account
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/model.AddAccount'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Account'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Add an account
-      tags:
-      - accounts
-  /accounts/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete by account ID
-      parameters:
-      - description: Account ID
-        format: int64
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: No Content
-          schema:
-            $ref: '#/definitions/model.Account'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Delete an account
-      tags:
-      - accounts
-    get:
-      consumes:
-      - application/json
-      description: get string by ID
-      parameters:
-      - description: Account ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Account'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Show an account
-      tags:
-      - accounts
-    patch:
-      consumes:
-      - application/json
-      description: Update by json account
-      parameters:
-      - description: Account ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: Update account
-        in: body
-        name: account
-        required: true
-        schema:
-          $ref: '#/definitions/model.UpdateAccount'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Account'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Update an account
-      tags:
-      - accounts
-  /accounts/{id}/images:
-    post:
-      consumes:
-      - multipart/form-data
-      description: Upload file
-      parameters:
-      - description: Account ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: account image
-        in: formData
-        name: file
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.Message'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Upload account image
-      tags:
-      - accounts
-  /admin/auth:
-    post:
-      consumes:
-      - application/json
-      description: get admin info
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Admin'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      security:
-      - ApiKeyAuth: []
-      summary: Auth admin
-      tags:
-      - accounts
-      - admin
-  /bottles:
-    get:
-      consumes:
-      - application/json
-      description: get bottles
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/model.Bottle'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: List bottles
-      tags:
-      - bottles
-  /bottles/{id}:
-    get:
-      consumes:
-      - application/json
-      description: get string by ID
-      operationId: get-string-by-int
-      parameters:
-      - description: Bottle ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/model.Bottle'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/httputil.HTTPError'
-      summary: Show a bottle
-      tags:
-      - bottles
+      - sync
   /examples/attribute:
     get:
       consumes:

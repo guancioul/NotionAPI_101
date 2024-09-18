@@ -4,9 +4,9 @@
         "contact": {}
     },
     "paths": {
-        "/accounts": {
+        "/api/v1/googleCalendar/getEventList/{calendarId}": {
             "get": {
-                "description": "get accounts",
+                "description": "Get a list of events from Google Calendar",
                 "consumes": [
                     "application/json"
                 ],
@@ -14,50 +14,58 @@
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "googleCalendar"
                 ],
-                "summary": "List accounts",
+                "summary": "Get Google Calendar Event List",
                 "parameters": [
                     {
                         "type": "string",
-                        "format": "email",
-                        "description": "name search by q",
-                        "name": "q",
+                        "description": "Database ID",
+                        "name": "calendarId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "timeMin",
+                        "name": "timeMin",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "timeMax",
+                        "name": "timeMax",
                         "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "success",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.Account"
+                                "$ref": "#/definitions/responseModel.CalendarEvents"
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "fail",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "type": "string"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Calendar not found",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "type": "string"
                         }
                     }
                 }
-            },
+            }
+        },
+        "/api/v1/notion/createDBPage/{databaseId}": {
             "post": {
-                "description": "add by json account",
+                "description": "Creates a new page in the specified database or as a child of an existing page.",
                 "consumes": [
                     "application/json"
                 ],
@@ -65,361 +73,49 @@
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "notion"
                 ],
-                "summary": "Add an account",
+                "summary": "Create a new Notion Page",
                 "parameters": [
                     {
-                        "description": "Add account",
-                        "name": "account",
+                        "type": "string",
+                        "description": "Database ID",
+                        "name": "databaseId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.AddAccount"
+                            "$ref": "#/definitions/requestModel.NotionCreateDBPageRequest"
                         }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Account"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/accounts/{id}": {
-            "get": {
-                "description": "get string by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "accounts"
-                ],
-                "summary": "Show an account",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Account ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Account"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete by account ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "accounts"
-                ],
-                "summary": "Delete an account",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "format": "int64",
-                        "description": "Account ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "$ref": "#/definitions/model.Account"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    }
-                }
-            },
-            "patch": {
-                "description": "Update by json account",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "accounts"
-                ],
-                "summary": "Update an account",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Account ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Update account",
-                        "name": "account",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.UpdateAccount"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Account"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/accounts/{id}/images": {
-            "post": {
-                "description": "Upload file",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "accounts"
-                ],
-                "summary": "Upload account image",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Account ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "account image",
-                        "name": "file",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.Message"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/admin/auth": {
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "get admin info",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "accounts",
-                    "admin"
-                ],
-                "summary": "Auth admin",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/model.Admin"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/bottles": {
-            "get": {
-                "description": "get bottles",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "bottles"
-                ],
-                "summary": "List bottles",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.Bottle"
+                                "$ref": "#/definitions/responseModel.Database"
                             }
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "type": "string"
                         }
                     }
                 }
             }
         },
-        "/bottles/{id}": {
-            "get": {
-                "description": "get string by ID",
+        "/api/v1/notion/createDatabase/{pageId}": {
+            "post": {
+                "description": "Creates a database as a subpage in the specified parent page, with the specified properties schema. Currently, the parent of a new database must be a Notion page or a wiki database.",
                 "consumes": [
                     "application/json"
                 ],
@@ -427,15 +123,121 @@
                     "application/json"
                 ],
                 "tags": [
-                    "bottles"
+                    "notion"
                 ],
-                "summary": "Show a bottle",
-                "operationId": "get-string-by-int",
+                "summary": "Create a new Notion Database",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Bottle ID",
-                        "name": "id",
+                        "type": "string",
+                        "description": "Page ID",
+                        "name": "pageId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.NotionCreateDatabaseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/responseModel.NotionCreateDatabaseResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/notion/queryDatabase/{databaseId}": {
+            "post": {
+                "description": "Queries a database, returning a paginated array of `Page` objects within the database.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notion"
+                ],
+                "summary": "Query Notion Database",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Database ID",
+                        "name": "databaseId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requestModel.NotionQueryDatabaseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/responseModel.NotionQueryDatabaseResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/sync/syncNotionToGoogleCalendar/{databaseId}/{calendarId}": {
+            "post": {
+                "description": "Sync Google Calendar to Notion for one day",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sync"
+                ],
+                "summary": "Sync Google Calendar to Notion",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Page ID",
+                        "name": "databaseId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Calendar ID",
+                        "name": "calendarId",
                         "in": "path",
                         "required": true
                     }
@@ -444,25 +246,16 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Bottle"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/responseModel.NotionCreateDatabaseResponse"
+                            }
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid input",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "type": "string"
                         }
                     }
                 }
@@ -872,28 +665,6 @@
         }
     },
     "definitions": {
-        "controller.Message": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "example": "message"
-                }
-            }
-        },
-        "httputil.HTTPError": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 400
-                },
-                "message": {
-                    "type": "string",
-                    "example": "status bad request"
-                }
-            }
-        },
         "model.Account": {
             "type": "object",
             "properties": {
@@ -913,50 +684,305 @@
                 }
             }
         },
-        "model.AddAccount": {
+        "requestModel.NotionCreateDBPageRequest": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "string",
-                    "example": "account name"
+                "properties": {
+                    "type": "object",
+                    "additionalProperties": true
                 }
             }
         },
-        "model.Admin": {
+        "requestModel.NotionCreateDatabaseRequest": {
             "type": "object",
             "properties": {
+                "properties": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "title": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            }
+        },
+        "requestModel.NotionQueryDatabaseRequest": {
+            "type": "object",
+            "properties": {
+                "filter": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "sorts": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                }
+            }
+        },
+        "responseModel.CalendarEvents": {
+            "type": "object",
+            "properties": {
+                "accessRole": {
+                    "type": "string"
+                },
+                "defaultReminders": {
+                    "type": "array",
+                    "items": {
+                        "type": "object"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "etag": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.Event"
+                    }
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "nextSyncToken": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "timeZone": {
+                    "type": "string"
+                },
+                "updated": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.Database": {
+            "type": "object",
+            "properties": {
+                "archived": {
+                    "type": "boolean"
+                },
+                "cover": {},
+                "created_by": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "object": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "created_time": {
+                    "type": "string"
+                },
+                "icon": {},
                 "id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string"
                 },
-                "name": {
-                    "type": "string",
-                    "example": "admin name"
+                "last_edited_by": {
+                    "type": "object",
+                    "properties": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "object": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "last_edited_time": {
+                    "type": "string"
+                },
+                "object": {
+                    "type": "string"
+                },
+                "parent": {
+                    "type": "object",
+                    "properties": {
+                        "database_id": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "properties": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "public_url": {},
+                "url": {
+                    "type": "string"
                 }
             }
         },
-        "model.Bottle": {
+        "responseModel.Event": {
             "type": "object",
             "properties": {
-                "account": {
-                    "$ref": "#/definitions/model.Account"
+                "created": {
+                    "type": "string"
+                },
+                "creator": {
+                    "type": "object",
+                    "properties": {
+                        "email": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "end": {
+                    "type": "object",
+                    "properties": {
+                        "dateTime": {
+                            "type": "string"
+                        },
+                        "timeZone": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "etag": {
+                    "type": "string"
+                },
+                "eventType": {
+                    "type": "string"
+                },
+                "htmlLink": {
+                    "type": "string"
+                },
+                "iCalUID": {
+                    "type": "string"
                 },
                 "id": {
-                    "type": "integer",
-                    "example": 1
+                    "type": "string"
                 },
-                "name": {
-                    "type": "string",
-                    "example": "bottle_name"
+                "kind": {
+                    "type": "string"
+                },
+                "organizer": {
+                    "type": "object",
+                    "properties": {
+                        "displayName": {
+                            "type": "string"
+                        },
+                        "email": {
+                            "type": "string"
+                        },
+                        "self": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "sequence": {
+                    "type": "integer"
+                },
+                "start": {
+                    "type": "object",
+                    "properties": {
+                        "dateTime": {
+                            "type": "string"
+                        },
+                        "timeZone": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "status": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "updated": {
+                    "type": "string"
                 }
             }
         },
-        "model.UpdateAccount": {
+        "responseModel.NotionCreateDatabaseResponse": {
             "type": "object",
             "properties": {
-                "name": {
-                    "type": "string",
-                    "example": "account name"
+                "archived": {
+                    "type": "boolean"
+                },
+                "created_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_inline": {
+                    "type": "boolean"
+                },
+                "last_edited_time": {
+                    "type": "string"
+                },
+                "object": {
+                    "type": "string"
+                },
+                "parent": {
+                    "type": "object",
+                    "properties": {
+                        "page_id": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "properties": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "title": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": true
+                    }
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "responseModel.NotionQueryDatabaseResponse": {
+            "type": "object",
+            "properties": {
+                "developer_survey": {
+                    "type": "string"
+                },
+                "has_more": {
+                    "type": "boolean"
+                },
+                "next_cursor": {},
+                "object": {
+                    "type": "string"
+                },
+                "page_or_database": {
+                    "type": "object"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/responseModel.Database"
+                    }
+                },
+                "type": {
+                    "type": "string"
                 }
             }
         }
