@@ -1,52 +1,70 @@
 package responseModel
 
-type NotionCreateDatabaseResponse struct {
-	Object         string                   `json:"object"`
-	ID             string                   `json:"id"`
-	CreatedTime    string                   `json:"created_time"`
-	LastEditedTime string                   `json:"last_edited_time"`
-	URL            string                   `json:"url"`
-	Title          []map[string]interface{} `json:"title"`
-	Properties     map[string]interface{}   `json:"properties"`
-	Parent         struct {
-		Type   string `json:"type"`
-		PageID string `json:"page_id"`
-	} `json:"parent"`
-	Archived bool `json:"archived"`
-	IsInline bool `json:"is_inline"`
+import "time"
+
+type User struct {
+	Object string `json:"object"`
+	ID     string `json:"id"`
 }
 
-type Database struct {
-	Object         string `json:"object"`
-	ID             string `json:"id"`
-	CreatedTime    string `json:"created_time"`
-	LastEditedTime string `json:"last_edited_time"`
-	CreatedBy      struct {
-		Object string `json:"object"`
-		ID     string `json:"id"`
-	} `json:"created_by"`
-	LastEditedBy struct {
-		Object string `json:"object"`
-		ID     string `json:"id"`
-	} `json:"last_edited_by"`
-	Cover  interface{} `json:"cover"`
-	Icon   interface{} `json:"icon"`
-	Parent struct {
+type NotionPageProperties struct {
+	Date struct {
+		ID       string `json:"id"`
+		Type     string `json:"type"`
+		DateInfo struct {
+			Start    string  `json:"start"`
+			End      string  `json:"end"`
+			TimeZone *string `json:"time_zone,omitempty"`
+		} `json:"date"`
+	} `json:"Date"`
+	Title struct {
+		ID    string `json:"id"`
+		Type  string `json:"type"`
+		Title []struct {
+			Type        string `json:"type"`
+			TextContent struct {
+				Content     string  `json:"content"`
+				Link        *string `json:"link,omitempty"`
+				Annotations struct {
+					Bold          bool   `json:"bold"`
+					Italic        bool   `json:"italic"`
+					Strikethrough bool   `json:"strikethrough"`
+					Underline     bool   `json:"underline"`
+					Code          bool   `json:"code"`
+					Color         string `json:"color"`
+				} `json:"annotations"`
+				PlainText string  `json:"plain_text"`
+				Href      *string `json:"href,omitempty"`
+			} `json:"text"`
+		} `json:"title"`
+	} `json:"Title"`
+}
+
+type NotionPage struct {
+	Object         string      `json:"object"`
+	ID             string      `json:"id"`
+	CreatedTime    time.Time   `json:"created_time"`
+	LastEditedTime time.Time   `json:"last_edited_time"`
+	CreatedBy      User        `json:"created_by"`
+	LastEditedBy   User        `json:"last_edited_by"`
+	Cover          interface{} `json:"cover"` // This can be any type, so I used interface{}
+	Icon           interface{} `json:"icon"`  // This can be any type, so I used interface{}
+	Parent         struct {
 		Type       string `json:"type"`
 		DatabaseID string `json:"database_id"`
 	} `json:"parent"`
-	Archived   bool                   `json:"archived"`
-	Properties map[string]interface{} `json:"properties"`
-	URL        string                 `json:"url"`
-	PublicURL  interface{}            `json:"public_url"`
+	Archived   bool                 `json:"archived"`
+	Properties NotionPageProperties `json:"properties"`
+	URL        string               `json:"url"`
+	PublicURL  interface{}          `json:"public_url"` // This can be any type, so I used interface{}
 }
 
-type NotionQueryDatabaseResponse struct {
-	Object          string      `json:"object"`
-	Results         []Database  `json:"results"`
-	NextCursor      interface{} `json:"next_cursor"`
-	HasMore         bool        `json:"has_more"`
-	Type            string      `json:"type"`
-	PageOrDB        struct{}    `json:"page_or_database"`
-	DeveloperSurvey string      `json:"developer_survey"`
+type QueryNotionDatabaseResponse struct {
+	Object         string       `json:"object"`
+	Results        []NotionPage `json:"results"`
+	NextCursor     interface{}  `json:"next_cursor"` // This can be any type, so I used interface{}
+	HasMore        bool         `json:"has_more"`
+	Type           string       `json:"type"`
+	PageOrDatabase interface{}  `json:"page_or_database"` // This can be any type, so I used interface{}
+	RequestID      string       `json:"request_id"`
 }

@@ -63,73 +63,21 @@ func (c *Controller) SyncGoogleCalendarToNotion(ctx *gin.Context) {
 	eventMap := make(map[string]domainModel.CalendarDomain)
 
 	for _, notionPage := range notionQueryResponse.Results {
-		title, ok := notionPage.Properties["Title"].(map[string]interface{})
-		if !ok {
-			fmt.Println("Invalid or missing 'Title' property")
-			return
-		}
-
-		titleData, ok := title["title"].([]interface{})
-		if !ok {
-			fmt.Println("Invalid or missing 'title' property")
-			return
-		}
-
-		titleFirst, ok := titleData[0].(map[string]interface{})
-		if !ok {
-			fmt.Println("Invalid or missing 'title' property")
-			return
-		}
-
-		titleText, ok := titleFirst["text"].(map[string]interface{})
-		if !ok {
-			fmt.Println("Invalid or missing 'text' property")
-			return
-		}
-
-		titleContent, ok := titleText["content"].(string)
-		if !ok {
-			fmt.Println("Invalid or missing 'content' property")
-			return
-		}
-		if _, ok := eventMap[titleContent]; !ok {
-			properties, ok := notionPage.Properties["Date"].(map[string]interface{})
-			if !ok {
-				fmt.Println("Invalid or missing 'Date' property")
-				return
-			}
-
-			date, ok := properties["date"].(map[string]interface{})
-			if !ok {
-				fmt.Println("Invalid or missing 'date' property")
-				return
-			}
-
-			start, ok := date["start"].(string)
-			if !ok {
-				fmt.Println("Invalid or missing 'start' property")
-				return
-			}
-
-			end, ok := date["start"].(string)
-			if !ok {
-				fmt.Println("Invalid or missing 'start' property")
-				return
-			}
-
-			startTime, err := time.Parse(time.RFC3339, start)
+		for _, titleContent := range notionPage.Properties.Title.Title {
+			startTime, err := time.Parse(time.RFC3339, notionPage.Properties.Date.DateInfo.Start)
 			if err != nil {
-				fmt.Println("Error parsing time:", err)
-				return
-			}
-			endTime, err := time.Parse(time.RFC3339, end)
-			if err != nil {
-				fmt.Println("Error parsing time:", err)
+				fmt.Println("Error loading time zone:", err)
 				return
 			}
 
-			eventMap[titleContent] = domainModel.CalendarDomain{
-				Event:     titleContent,
+			endTime, err := time.Parse(time.RFC3339, notionPage.Properties.Date.DateInfo.End)
+			if err != nil {
+				fmt.Println("Error loading time zone:", err)
+				return
+			}
+
+			eventMap[titleContent.TextContent.Content] = domainModel.CalendarDomain{
+				Event:     titleContent.TextContent.Content,
 				StartTime: startTime,
 				EndTime:   endTime,
 			}

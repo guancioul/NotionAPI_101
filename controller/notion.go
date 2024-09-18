@@ -82,7 +82,7 @@ func (c *Controller) CreateNotionDatabase(ctx *gin.Context) {
 	var data []byte = []byte(bodyStr)
 
 	// Unmarshal the response body to struct
-	var responseCreateNotionDatabase responseModel.NotionCreateDatabaseResponse
+	var responseCreateNotionDatabase responseModel.QueryNotionDatabaseResponse
 	json.Unmarshal(data, &responseCreateNotionDatabase)
 
 	ctx.JSON(http.StatusOK, responseCreateNotionDatabase)

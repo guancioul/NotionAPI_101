@@ -11,7 +11,7 @@ import (
 	"github.com/guancioul/NotionGoogleCalendarIntegration/util"
 )
 
-func QueryNotionDatabaseService(databaseId string, requests requestModel.NotionQueryDatabaseRequest) responseModel.NotionQueryDatabaseResponse {
+func QueryNotionDatabaseService(databaseId string, requests requestModel.NotionQueryDatabaseRequest) responseModel.QueryNotionDatabaseResponse {
 	// Get Authorization from config
 	configHandler := util.NewConfigHandler()
 	auth := configHandler.GetSecretConfig().Get("Authorization")
@@ -46,13 +46,13 @@ func QueryNotionDatabaseService(databaseId string, requests requestModel.NotionQ
 	var data []byte = []byte(bodyStr)
 
 	// Unmarshal the response body to struct
-	var responseQueryNotionDatabase responseModel.NotionQueryDatabaseResponse
+	var responseQueryNotionDatabase responseModel.QueryNotionDatabaseResponse
 	json.Unmarshal(data, &responseQueryNotionDatabase)
 
 	return responseQueryNotionDatabase
 }
 
-func CreateNotionPageService(databaseId string, requests requestModel.NotionCreateDBPageRequest) responseModel.NotionCreateDatabaseResponse {
+func CreateNotionPageService(databaseId string, requests requestModel.NotionCreateDBPageRequest) responseModel.QueryNotionDatabaseResponse {
 	// Get Authorization from config
 	configHandler := util.NewConfigHandler()
 	auth := configHandler.GetSecretConfig().Get("Authorization")
@@ -92,7 +92,7 @@ func CreateNotionPageService(databaseId string, requests requestModel.NotionCrea
 	var data []byte = []byte(bodyStr)
 
 	// Unmarshal the response body to struct
-	var responseCreateNotionDatabase responseModel.NotionCreateDatabaseResponse
+	var responseCreateNotionDatabase responseModel.QueryNotionDatabaseResponse
 	json.Unmarshal(data, &responseCreateNotionDatabase)
 
 	return responseCreateNotionDatabase
